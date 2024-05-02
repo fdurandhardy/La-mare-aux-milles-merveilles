@@ -3,5 +3,6 @@ function setup() {
 }
 
 function draw() {
+  // Je rajoute un commentaire
   background(220);
 }
