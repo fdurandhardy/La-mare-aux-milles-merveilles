@@ -1,0 +1,108 @@
+let soundFile;
+let isPlaying = false;
+let list_sound;
+let random_sound_frog;
+
+let isPoping = false;
+let frog;
+
+function preload() {
+  // Charger le fichier audio
+  frog_sound_1 = loadSound('la mare aux milles merveilles/utils/frog/son/frog_1.mp3');
+  frog_sound_2 = loadSound('la mare aux milles merveilles/utils/frog/son/frog_2.mp3');
+  frog_sound_3 = loadSound('la mare aux milles merveilles/utils/frog/son/frog_3.mp3');
+  // frog_sound_4 = loadSound('la mare aux milles merveilles/utils/frog/son/frog_4.mp3');
+  // frog_sound_5 = loadSound('la mare aux milles merveilles/utils/frog/son/frog_5.mp3');
+
+  frog_head = loadImage('la mare aux milles merveilles/utils/frog/head/head_frog1.png');
+
+  frog = new Frog();
+  
+}
+
+function setup() {
+  soundFormats('mp3');
+  // list_sound = [frog_sound_1, frog_sound_2,frog_sound_3,frog_sound_4,frog_sound_5];
+  list_sound = [frog_sound_1, frog_sound_2,frog_sound_3];
+
+  let canvas = createCanvas(1080, 1080);
+  
+
+  // Attacher un gestionnaire d'événements de clic au canvas
+  canvas.mousePressed(toggle);
+  
+}
+
+function toggle(){
+  frog.isOutOfWater = true;
+  random_sound_frog = Math.floor(Math.random() * list_sound.length);
+  list_sound[random_sound_frog].play();
+
+}
+
+function displayImage(){
+  if(isPoping){
+    imageMode(CENTER);
+    image(frog_head, mouseX,mouseY);
+  }
+}
+
+function draw() {
+  background(0, 0, 0, 100);
+  frog.draw();
+}
+
+class Frog {
+  constructor() {
+
+    this.size = 50; // taille de la tete de la grenouille
+    this.image = frog_head; // modele de la tete
+    this.d_circle = 0; // a quel point la tete est hors de l'eau
+    this.isOutOfWater = false; // est-ce que la grenouille fait une sortie ?
+    this.isComing = true; // est-ce que la grenouille est en train de sortir de l'eau ou de rentrer dans l'eau?
+    this.speed = 0.35; // vitesse de sortie de la grenouille
+  }
+
+  draw() {
+    if (this.isOutOfWater){
+    // On dessine la tête de la grenouille en entière
+    push();
+    imageMode(CENTER);
+    this.image.resize(this.size,this.size);
+    image(this.image, mouseX,mouseY);
+    pop();
+
+    // On dessine par dessus un anneau avec des traits plus ou moins épais afin de faire semblant qu'on ne voit pas toute la tête de la grenouille
+    push();
+    noFill();
+    stroke(0,128,255);
+    strokeWeight((this.size - this.d_circle)/2);
+    circle(mouseX,mouseY,(this.size-(this.size-this.d_circle)/2));
+    pop();
+
+    // la grenouille sort ou rentre petit à petit de l'eau
+
+    if (this.isComing){this.d_circle += this.speed};
+    if (!this.isComing){this.d_circle -= this.speed};
+
+    // Quand la grenouille n'est pas sortie, on trace juste de l'eau normal
+
+  } else {
+    push();
+    fill(0,128,255);
+    circle(mouseX,mouseY,this.size);
+    pop();
+  }
+
+
+  // Une fois la grenouille totalement hors de l'eau, elle doit rerentrer
+  if(this.d_circle > this.size){
+    this.isComing = false;
+  }
+  if(this.d_circle < 0){
+    this.d_circle = 0;
+    this.isComing = true;
+    this.isOutOfWater = false;
+  }
+  }
+}

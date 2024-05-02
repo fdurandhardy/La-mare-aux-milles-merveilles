@@ -1,0 +1,29 @@
+let trail_new = new p5.Vector(0, 0);
+let trail_old = new p5.Vector(0, 0);
+const size = 50;
+const long_trait = 100;
+
+function setup() {
+createCanvas(300, 300);
+noStroke();
+}
+
+function draw() {
+background(50);
+
+// Add a point to the end of the trail at the mouse position
+trail_old = trail_new;
+trail_new = new p5.Vector(mouseX, mouseY);
+
+// Draw the trail
+// The trail is smaller at the beginning,
+// and larger closer to the mouse
+circle(trail_new.x, trail_new.y, size);
+
+push;
+let x_temp = (trail_new.x - trail_old.x)*long_trait / dist(trail_new.x, trail_new.y, trail_old.x, trail_old.y) + trail_old.x;
+let y_temp = (trail_new.y - trail_old.y)*long_trait / dist(trail_new.x, trail_new.y, trail_old.x, trail_old.y) + trail_old.y;
+line(trail_new.x, trail_new.y, x_temp, y_temp);
+stroke("red");
+pop;
+}

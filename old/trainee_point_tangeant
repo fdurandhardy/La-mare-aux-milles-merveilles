@@ -1,0 +1,86 @@
+let trail_new;
+let trail_old;
+let trail_ref;
+let maj_x, maj_y, maj_vec = 0;
+
+let liste_trail = [];
+let v0,v1;
+let new_angle;
+
+const r = 50;
+const r_trail = 10;
+const long_trail = 25;
+
+function setup() {
+createCanvas(1080, 1080);
+noStroke();
+frameRate(68);
+
+// Initialisation des différentes éléments dont on aura besoin
+trail_new = new CirclePousse(0, 0);
+trail_old = new CirclePousse(0, 0);
+trail_ref = new CirclePousse(0, 0);
+v0 = createVector(1,0);
+v1 = createVector(1,0);
+}
+
+function draw() {
+background(50);
+
+// On enregistre les anciennes positions par où le cercle est passé
+trail_old = trail_new;
+liste_trail.push(trail_old);
+
+// On dessine les premiers éléments de la trainée
+if (liste_trail.length > long_trail) {
+liste_trail.shift();
+}
+
+
+trail_new = new CirclePousse(mouseX, mouseY);
+
+// Comme il y a 64 frames par seconde, les coordonnées sont enregistrée trop vite pour pouvoir calculer une nouvelle direction entre l'ancienne et la nouvelle position
+// On attend donc qu'un certain nombre de coordonnées soient calculées avant de calculer une direction
+maj_x = trail_old.x-trail_new.x;
+maj_y = trail_old.y-trail_new.y;
+maj_vec = abs(maj_x) + abs(maj_y) + maj_vec;
+
+if (maj_vec > 5){
+  // Une fois qu'on est certain que le cercle a bougé, on met à jour la direction (et donc un angle)
+  v1 = createVector(trail_new.x - trail_ref.x,trail_new.y - trail_ref.y);
+  new_angle = v0.angleBetween(v1) + PI/2;
+
+  maj_vec = 0;
+  trail_ref = trail_new;
+}
+trail_new.angle = new_angle;
+
+// Enfin, on trace d'abords la trainée et le cercle par dessus.
+for (let i = 0; i < liste_trail.length; i++) {
+  let p = liste_trail[i];
+  p.draw_trail();
+}
+trail_new.draw_circle();
+
+}
+
+class CirclePousse {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y; 
+      this.angle = 0;
+
+    }
+
+    draw_circle() {
+      stroke("blue");
+      circle(this.x, this.y, r * 2);
+    }
+
+    draw_trail() {
+      stroke("red");
+      circle(this.x + r*cos(this.angle), this.y + r*sin(this.angle), r_trail);
+      stroke("green");
+      circle(this.x - r*cos(this.angle), this.y - r*sin(this.angle), r_trail);
+    }
+  }
